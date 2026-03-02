@@ -4,27 +4,22 @@ from flask import current_app
 
 def init_db(app):
     with app.app_context():
-        configured_uri = app.config.get("MONGO_URI")
-        tried_uris = [configured_uri, "mongodb://localhost:27017/deepfake_db"]
-        client = None
-        success_uri = None
-        for uri in tried_uris:
-            try:
-                client = MongoClient(uri, serverSelectionTimeoutMS=5000)
-                client.admin.command("ping")
-                success_uri = uri
-                break
-            except Exception as exc:
-                print(f"MongoDB connection failed for {uri!r}: {exc}")
+        mongo_uri = app.config.get("MONGO_URI")
 
-        if client is None or success_uri is None:
-            raise RuntimeError(
-                "Unable to connect to MongoDB. Ensure MongoDB is running locally or set a valid MONGO_URI."
-            )
+        try:
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+            client.admin.command("ping")  # test connection
+        except Exception as exc:
+            raise RuntimeError(f"MongoDB connection failed: {exc}")
 
-        db_name = success_uri.rsplit("/", 1)[-1] if "/" in success_uri else "deepfake_db"
+        # ✅ Use database directly from URI
+        db = client.get_default_database()
+
+        if db is None:
+            raise RuntimeError("Database name not found in MONGO_URI")
+
         app.mongo_client = client
-        app.db = client[db_name]
+        app.db = db
 
 
 def get_db():
