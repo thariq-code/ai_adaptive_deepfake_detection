@@ -31,8 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
 function setupLogin() {
     const form = document.getElementById("loginForm");
     if (!form) return;
+
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         const errorEl = document.getElementById("errorMsg");
@@ -43,14 +45,17 @@ function setupLogin() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
+
             const data = await res.json();
-            if (res.ok) {
+
+            if (res.ok && data.access_token) {
                 localStorage.setItem("token", data.access_token);
                 window.location.href = "/dashboard";
             } else {
                 errorEl.textContent = data.error || "Login failed";
             }
         } catch (err) {
+            console.error(err);
             errorEl.textContent = "Network error";
         }
     });
@@ -59,8 +64,10 @@ function setupLogin() {
 function setupRegister() {
     const form = document.getElementById("registerForm");
     if (!form) return;
+
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         const errorEl = document.getElementById("errorMsg");
@@ -71,14 +78,17 @@ function setupRegister() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
+
             const data = await res.json();
-            if (res.ok) {
+
+            if (res.ok && data.access_token) {
                 localStorage.setItem("token", data.access_token);
                 window.location.href = "/dashboard";
             } else {
                 errorEl.textContent = data.error || "Registration failed";
             }
         } catch (err) {
+            console.error(err);
             errorEl.textContent = "Network error";
         }
     });
@@ -86,7 +96,6 @@ function setupRegister() {
 
 function setupDashboard() {
     loadDashboardStats();
-    setupWebcam();
 
     document.getElementById("startCam").addEventListener("click", startWebcam);
     document.getElementById("stopCam").addEventListener("click", stopWebcam);
@@ -97,21 +106,19 @@ async function loadDashboardStats() {
         const res = await fetch("/api/dashboard", {
             headers: { "Authorization": `Bearer ${token}` }
         });
-        if (!res.ok) throw new Error("Failed to load stats");
-        const data = await res.json();
-        document.getElementById("totalDetections").textContent = data.total_detections;
-        document.getElementById("realCount").textContent = data.real_count;
-        document.getElementById("fraudCount").textContent = data.fraud_count;
-        document.getElementById("suspiciousCount").textContent = data.suspicious_count;
-    } catch (err) {
-        console.error(err);
-    }
-}
 
-function setupWebcam() {
-    const video = document.getElementById("webcam");
-    const startBtn = document.getElementById("startCam");
-    const stopBtn = document.getElementById("stopCam");
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        document.getElementById("totalDetections").textContent = data.total_detections || 0;
+        document.getElementById("realCount").textContent = data.real_count || 0;
+        document.getElementById("fraudCount").textContent = data.fraud_count || 0;
+        document.getElementById("suspiciousCount").textContent = data.suspicious_count || 0;
+
+    } catch (err) {
+        console.error("Dashboard error:", err);
+    }
 }
 
 async function startWebcam() {
@@ -126,8 +133,9 @@ async function startWebcam() {
 
         isAnalyzing = true;
         captureInterval = setInterval(captureAndAnalyze, 1000);
+
     } catch (err) {
-        alert("Unable to access webcam: " + err.message);
+        alert("Webcam error: " + err.message);
     }
 }
 
@@ -136,33 +144,29 @@ function stopWebcam() {
         webcamStream.getTracks().forEach(track => track.stop());
         webcamStream = null;
     }
-    if (captureInterval) {
-        clearInterval(captureInterval);
-        captureInterval = null;
-    }
+
+    clearInterval(captureInterval);
     isAnalyzing = false;
+
     document.getElementById("startCam").disabled = false;
     document.getElementById("stopCam").disabled = true;
-
-    document.querySelector(".status-indicator").textContent = "⏳ Idle";
-    document.getElementById("fraudMeter").style.width = "0%";
-    document.getElementById("fraudScore").textContent = "0.00";
-    document.getElementById("confidence").textContent = "0.00";
 }
 
 function captureAndAnalyze() {
     if (!isAnalyzing) return;
+
     const video = document.getElementById("webcam");
-    if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    if (!video || video.readyState !== 4) return;
 
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const base64Image = canvas.toDataURL("image/jpeg", 0.8);
-    sendForDetection(base64Image);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    const image = canvas.toDataURL("image/jpeg", 0.8);
+    sendForDetection(image);
 }
 
 async function sendForDetection(imageBase64) {
@@ -175,40 +179,34 @@ async function sendForDetection(imageBase64) {
             },
             body: JSON.stringify({ image: imageBase64 })
         });
-        if (!res.ok) throw new Error("Detection failed");
+
+        if (!res.ok) return;
+
         const data = await res.json();
 
         updateResultDisplay(data);
-        loadDashboardStats();
+
     } catch (err) {
-        console.error(err);
+        console.error("Detection error:", err);
     }
 }
 
 function updateResultDisplay(result) {
+    if (!result) return;
+
     const statusEl = document.querySelector(".status-indicator");
     const meterEl = document.getElementById("fraudMeter");
     const scoreEl = document.getElementById("fraudScore");
     const confEl = document.getElementById("confidence");
 
-    let statusText = "";
-    let color = "";
-    if (result.classification === "REAL") {
-        statusText = "✅ REAL";
-        color = "var(--success)";
-    } else if (result.classification === "FAKE") {
-        statusText = "⚠️ FAKE";
-        color = "var(--danger)";
-    } else {
-        statusText = "🔍 SUSPICIOUS";
-        color = "var(--warning)";
-    }
+    const fraudScore = result.fraud_score || 0;
+    const confidence = result.confidence || 0;
+    const classification = result.classification || "SUSPICIOUS";
 
-    statusEl.innerHTML = statusText;
-    statusEl.style.color = color;
-    meterEl.style.width = (result.fraud_score * 100) + "%";
-    scoreEl.textContent = result.fraud_score.toFixed(2);
-    confEl.textContent = result.confidence.toFixed(2);
+    statusEl.textContent = classification;
+    meterEl.style.width = (fraudScore * 100) + "%";
+    scoreEl.textContent = fraudScore.toFixed(2);
+    confEl.textContent = confidence.toFixed(2);
 }
 
 async function setupHistory() {
@@ -216,29 +214,30 @@ async function setupHistory() {
         const res = await fetch("/api/history", {
             headers: { "Authorization": `Bearer ${token}` }
         });
-        if (!res.ok) throw new Error("Failed to load history");
-        const data = await res.json();
-        const tbody = document.getElementById("historyBody");
-        const noDataDiv = document.getElementById("noHistory");
 
-        if (data.length === 0) {
-            noDataDiv.style.display = "block";
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        const tbody = document.getElementById("historyBody");
+        tbody.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
             return;
         }
 
-        noDataDiv.style.display = "none";
-        tbody.innerHTML = "";
         data.forEach(item => {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${new Date(item.timestamp).toLocaleString()}</td>
                 <td>${item.classification}</td>
-                <td>${item.fraud_score.toFixed(2)}</td>
-                <td>${item.confidence.toFixed(2)}</td>
+                <td>${Number(item.fraud_score || 0).toFixed(2)}</td>
+                <td>${Number(item.confidence || 0).toFixed(2)}</td>
             `;
             tbody.appendChild(row);
         });
+
     } catch (err) {
-        console.error(err);
+        console.error("History error:", err);
     }
 }
