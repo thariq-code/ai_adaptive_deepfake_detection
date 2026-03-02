@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGuard - Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">DeepGuard</div>
+        <div class="nav-links">
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/history">History</a>
+            <a href="#" id="logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="stats-panel">
+            <h2>Detection Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Total Detections</span>
+                    <span class="stat-value" id="totalDetections">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Real</span>
+                    <span class="stat-value" id="realCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Fake</span>
+                    <span class="stat-value" id="fraudCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Suspicious</span>
+                    <span class="stat-value" id="suspiciousCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="live-panel">
+            <h2>Live Webcam Analysis</h2>
+            <div class="webcam-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="overlay" class="overlay"></canvas>
+            </div>
+            <div class="controls">
+                <button id="startCam" class="btn-primary">Start Camera</button>
+                <button id="stopCam" class="btn-secondary" disabled>Stop</button>
+            </div>
+            <div class="result-card" id="liveResult">
+                <div class="status-indicator">⏳ Idle</div>
+                <div class="fraud-meter">
+                    <div class="meter-bar" id="fraudMeter" style="width: 0%"></div>
+                </div>
+                <div class="score-details">
+                    <span>Fraud Score: <span id="fraudScore">0.00</span></span>
+                    <span>Confidence: <span id="confidence">0.00</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

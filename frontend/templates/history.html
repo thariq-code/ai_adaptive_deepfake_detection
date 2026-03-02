@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGuard - History</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">DeepGuard</div>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/history" class="active">History</a>
+            <a href="#" id="logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="history-container">
+        <h2>Detection History</h2>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Classification</th>
+                    <th>Fraud Score</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+        <div id="noHistory" class="no-data">No detections yet.</div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGuard - Login</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-card">
+            <h1 class="glow">🔒 DeepGuard</h1>
+            <p class="subtitle">AI Deepfake Detection</p>
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p class="auth-link">Don't have an account? <a href="/register">Register</a></p>
+            <div id="errorMsg" class="error"></div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
