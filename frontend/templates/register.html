@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+
+    <!-- ================= REGISTER CONTAINER ================= -->
     <div class="container">
         <div class="auth-card">
             <h1 class="glow">🛡️ DeepGuard</h1>
             <p class="subtitle">Create Account</p>
+
             <form id="registerForm">
                 <div class="input-group">
                     <input type="email" id="email" placeholder="Email" required>
@@ -20,10 +23,42 @@
                 </div>
                 <button type="submit" class="btn-primary">Register</button>
             </form>
-            <p class="auth-link">Already have an account? <a href="/login">Login</a></p>
+
+            <p class="auth-link">
+                Already have an account?
+                <a href="/login">Login</a>
+            </p>
+
             <div id="errorMsg" class="error"></div>
         </div>
     </div>
+
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>
+                AI Adaptive Deepfake Detection |
+                Developed by Thariq Arsath | 2026
+            </p>
+            <button class="about-btn" onclick="openAboutModal()">About</button>
+        </div>
+    </footer>
+
+
+    <!-- ================= ABOUT MODAL ================= -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAboutModal()">&times;</span>
+            <h2>About This Project</h2>
+            <p>AI & ML Capstone Project</p>
+            <p>Real-time Deepfake Detection</p>
+            <p>Flask + MongoDB + OpenCV + Librosa</p>
+            <p>Production deployed on Render</p>
+        </div>
+    </div>
+
     <script src="/static/app.js"></script>
+
 </body>
 </html>

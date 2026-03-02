@@ -241,3 +241,112 @@ async function setupHistory() {
         console.error("History error:", err);
     }
 }
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+    });
+});
+
+// Video upload handling
+const videoUploadArea = document.getElementById('videoUploadArea');
+const videoFileInput = document.getElementById('videoFile');
+const uploadVideoBtn = document.getElementById('uploadVideoBtn');
+const videoPreview = document.getElementById('videoPreview');
+
+videoUploadArea.addEventListener('click', () => videoFileInput.click());
+videoFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        uploadVideoBtn.disabled = false;
+        videoPreview.innerHTML = `<p>Selected: ${file.name}</p>`;
+    } else {
+        uploadVideoBtn.disabled = true;
+        videoPreview.innerHTML = '';
+    }
+});
+
+uploadVideoBtn.addEventListener('click', async () => {
+    const file = videoFileInput.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const res = await fetch('/api/detect-video', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+            updateResultDisplay(data);
+            loadDashboardStats();
+        } else {
+            alert(data.error || 'Video analysis failed');
+        }
+    } catch (err) {
+        alert('Network error');
+    }
+});
+
+// Audio upload handling
+const audioUploadArea = document.getElementById('audioUploadArea');
+const audioFileInput = document.getElementById('audioFile');
+const uploadAudioBtn = document.getElementById('uploadAudioBtn');
+const audioPreview = document.getElementById('audioPreview');
+
+audioUploadArea.addEventListener('click', () => audioFileInput.click());
+audioFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        uploadAudioBtn.disabled = false;
+        audioPreview.innerHTML = `<p>Selected: ${file.name}</p>`;
+    } else {
+        uploadAudioBtn.disabled = true;
+        audioPreview.innerHTML = '';
+    }
+});
+
+uploadAudioBtn.addEventListener('click', async () => {
+    const file = audioFileInput.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const res = await fetch('/api/detect-audio', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+            updateResultDisplay(data);
+            loadDashboardStats();
+        } else {
+            alert(data.error || 'Audio analysis failed');
+        }
+    } catch (err) {
+        alert('Network error');
+    }
+});
+
+// About modal functions
+function openAboutModal() {
+    document.getElementById('aboutModal').style.display = 'block';
+}
+
+function closeAboutModal() {
+    document.getElementById('aboutModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('aboutModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}

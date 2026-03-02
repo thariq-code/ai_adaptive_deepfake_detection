@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+
+    <!-- ================= NAVBAR ================= -->
     <nav class="navbar">
         <div class="nav-brand">DeepGuard</div>
         <div class="nav-links">
@@ -16,7 +18,11 @@
         </div>
     </nav>
 
+
+    <!-- ================= MAIN CONTAINER ================= -->
     <div class="dashboard-container">
+
+        <!-- ===== STATS PANEL ===== -->
         <div class="stats-panel">
             <h2>Detection Statistics</h2>
             <div class="stats-grid">
@@ -39,16 +45,71 @@
             </div>
         </div>
 
+
+        <!-- ===== ANALYSIS PANEL ===== -->
         <div class="live-panel">
-            <h2>Live Webcam Analysis</h2>
-            <div class="webcam-container">
-                <video id="webcam" autoplay playsinline></video>
-                <canvas id="overlay" class="overlay"></canvas>
+
+            <!-- Tabs -->
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="live">Live Webcam</button>
+                <button class="tab-btn" data-tab="video">Upload Video</button>
+                <button class="tab-btn" data-tab="audio">Upload Audio</button>
             </div>
-            <div class="controls">
-                <button id="startCam" class="btn-primary">Start Camera</button>
-                <button id="stopCam" class="btn-secondary" disabled>Stop</button>
+
+
+            <!-- ================= LIVE TAB ================= -->
+            <div id="tab-live" class="tab-content active">
+                <h2>Live Webcam Analysis</h2>
+                <div class="webcam-container">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="overlay" class="overlay"></canvas>
+                </div>
+                <div class="controls">
+                    <button id="startCam" class="btn-primary">Start Camera</button>
+                    <button id="stopCam" class="btn-secondary" disabled>Stop</button>
+                </div>
             </div>
+
+
+            <!-- ================= VIDEO TAB ================= -->
+            <div id="tab-video" class="tab-content">
+                <h2>Video File Analysis</h2>
+
+                <div class="upload-area" id="videoUploadArea">
+                    <p>Click to upload video file</p>
+                    <input type="file" id="videoFile" accept=".mp4,.mov,.avi" hidden>
+                </div>
+
+                <div class="controls">
+                    <button id="uploadVideoBtn" class="btn-primary" disabled>
+                        Analyze Video
+                    </button>
+                </div>
+
+                <div id="videoPreview" class="preview"></div>
+            </div>
+
+
+            <!-- ================= AUDIO TAB ================= -->
+            <div id="tab-audio" class="tab-content">
+                <h2>Audio File Analysis</h2>
+
+                <div class="upload-area" id="audioUploadArea">
+                    <p>Click to upload audio file</p>
+                    <input type="file" id="audioFile" accept=".mp3,.wav" hidden>
+                </div>
+
+                <div class="controls">
+                    <button id="uploadAudioBtn" class="btn-primary" disabled>
+                        Analyze Audio
+                    </button>
+                </div>
+
+                <div id="audioPreview" class="preview"></div>
+            </div>
+
+
+            <!-- ================= RESULT CARD (SHARED) ================= -->
             <div class="result-card" id="liveResult">
                 <div class="status-indicator">⏳ Idle</div>
                 <div class="fraud-meter">
@@ -59,9 +120,36 @@
                     <span>Confidence: <span id="confidence">0.00</span></span>
                 </div>
             </div>
+
         </div>
     </div>
 
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>
+                AI Adaptive Deepfake Detection | Developed by Thariq Arsath | 2026
+            </p>
+            <button class="about-btn" onclick="openAboutModal()">About</button>
+        </div>
+    </footer>
+
+
+    <!-- ================= ABOUT MODAL ================= -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAboutModal()">&times;</span>
+            <h2>About This Project</h2>
+            <p>AI & ML Capstone Project</p>
+            <p>Real-time Deepfake Detection</p>
+            <p>Flask + MongoDB + OpenCV + Librosa</p>
+            <p>Production deployed on Render</p>
+        </div>
+    </div>
+
+
     <script src="/static/app.js"></script>
+
 </body>
 </html>
